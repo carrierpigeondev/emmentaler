@@ -5,6 +5,8 @@ const toml = @import("toml");
 const fs = @import("lib/fs.zig");
 const toml_internal = @import("lib/toml/toml.zig");
 
+const rl = @import("raylib");
+
 pub fn main(init: std.process.Init) !void {
     const io = init.io;
     const gpa = init.gpa;
@@ -17,5 +19,21 @@ pub fn main(init: std.process.Init) !void {
 
     for (item_table.items) |item| {
         std.debug.print("Unique Item Identifer found! :: {s}\n", .{item.uiid});
+    }
+
+    rl.initWindow(800, 450, "emmentaler");
+    defer rl.closeWindow();
+
+    while (!rl.windowShouldClose()) {
+        rl.beginDrawing();
+        defer rl.endDrawing();
+
+        rl.clearBackground(.black);
+
+        for (item_table.items, 0..) |item, index| {
+            _ = item;
+            const index_as_int: i32 = @intCast(index);
+            rl.drawRectangle(200, index_as_int * 10, 5, 5, .red);
+        }
     }
 }
