@@ -13,13 +13,15 @@ pub fn main(init: std.process.Init) !void {
     const directory_contents_buffer = try fs.getDirectoryContents(io, gpa, &.{"data.d"});
     defer gpa.free(directory_contents_buffer);
 
-    var err: toml.ErrorInfo = .{};
-    const item_table = toml.parseInto(toml_internal.structs.ItemTable, arena.allocator(), directory_contents_buffer, &err) catch |e| {
-        const fmt_err = try std.fmt.allocPrint(gpa, "parse error {d}:{d}: {s}\n", .{ err.line, err.col, err.message() });
-        defer gpa.free(fmt_err);
-        try std.Io.File.stderr().writeStreamingAll(io, fmt_err);
-        return e;
-    };
+    //var err: toml.ErrorInfo = .{};
+    //const item_table = toml.parseInto(toml_internal.structs.ItemTable, arena.allocator(), directory_contents_buffer, &err) catch |e| {
+    //    const fmt_err = try std.fmt.allocPrint(gpa, "parse error {d}:{d}: {s}\n", .{ err.line, err.col, err.message() });
+    //    defer gpa.free(fmt_err);
+    //    try std.Io.File.stderr().writeStreamingAll(io, fmt_err);
+    //    return e;
+    //};
+
+    const item_table = try toml_internal.structs.parseIntoItemTable(io, arena.allocator(), directory_contents_buffer);
 
     for (item_table.items) |item| {
         std.debug.print("Unique Item Identifer found! :: {s}\n", .{item.uiid});
