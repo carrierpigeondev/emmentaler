@@ -1,0 +1,12 @@
+.{
+    .name = .emmentaler,
+    .version = "0.16.0",
+    .dependencies = .{
+        .z_toml = .{
+            .url = "https://github.com/eneskemalergin/z-toml/archive/refs/tags/v0.2.0.tar.gz",
+            .hash = "z_toml-0.2.0-QKon80k7BQDR3-vkPmX7b8n6UEDxbvQpRhIC94gJ5K2f",
+        },
+    },
+    .paths = .{""},
+    .fingerprint = 0xb172126cc3cd2aa7,
+}

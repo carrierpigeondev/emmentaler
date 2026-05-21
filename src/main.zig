@@ -1,0 +1,27 @@
+const std = @import("std");
+
+const toml = @import("toml");
+
+const fs = @import("lib/fs.zig");
+const toml_internal = @import("lib/toml/toml.zig");
+
+pub fn main(init: std.process.Init) !void {
+    const io = init.io;
+    const gpa = init.gpa;
+    const arena = init.arena;
+
+    const directory_contents_buffer = try fs.getDirectoryContents(io, gpa, &.{"data.d"});
+    defer gpa.free(directory_contents_buffer);
+
+    var err: toml.ErrorInfo = .{};
+    const item_table = toml.parseInto(toml_internal.structs.ItemTable, arena.allocator(), directory_contents_buffer, &err) catch |e| {
+        const fmt_err = try std.fmt.allocPrint(gpa, "parse error {d}:{d}: {s}\n", .{ err.line, err.col, err.message() });
+        defer gpa.free(fmt_err);
+        try std.Io.File.stderr().writeStreamingAll(io, fmt_err);
+        return e;
+    };
+
+    for (item_table.items) |item| {
+        std.debug.print("Unique Item Identifer found! :: {s}\n", .{item.uiid});
+    }
+}
