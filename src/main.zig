@@ -30,10 +30,8 @@ pub fn main(init: std.process.Init) !void {
 
         rl.clearBackground(.black);
 
-        for (item_table.items, 0..) |item, index| {
-            _ = item;
-            const index_as_int: i32 = @intCast(index);
-            rl.drawRectangle(200, index_as_int * 10, 5, 5, .red);
+        for (item_table.items) |item| {
+            rl.drawRectangle(item.position.x, item.position.y, 5, 5, .red);
         }
     }
 }

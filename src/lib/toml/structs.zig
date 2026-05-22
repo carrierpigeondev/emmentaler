@@ -7,6 +7,12 @@ pub const ItemTable = struct {
 
 pub const Item = struct {
     uiid: []const u8, // unique item identifier
+    position: Vector2,
+};
+
+pub const Vector2 = struct {
+    x: i32,
+    y: i32,
 };
 
 pub fn parseIntoItemTable(io: std.Io, allocator: std.mem.Allocator, input: []const u8) !ItemTable {
