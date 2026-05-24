@@ -1,2 +1,6 @@
 [[items]]
 uiid="item_test_b"
+[[items.tasks]]
+path="TaskB"
+[[items.tasks]]
+path="TaskB"
