@@ -27,6 +27,7 @@ pub fn main(init: std.process.Init) !void {
     // is deterministic, or at least, more so than it is now -- observed
     // behavior shows consistency when the item files are unchanged, but when
     // changed it seems to differ (no clue why tbh)
+    toml_internal.sortItemTable(item_table);
 
     // TODO: after sorted (so sorting only takes place once), need to break
     // into task types (TODO implementation of task types) for execution

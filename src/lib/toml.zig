@@ -10,7 +10,15 @@ pub const Item = struct {
     tasks: ?[]Task = null,
 };
 
-pub const Task = struct { path: []const u8 };
+/// `path` must match to a .so file (.zig of the same name after compilation by
+/// executing Emmentaler).
+///
+/// `type` is optional, default to `once`. Dictates when the task is run.
+/// Options are: `once`, and `loop`
+pub const Task = struct {
+    path: []const u8, // matches to a .so file containing the task code
+    type: ?[]const u8 = "once",
+};
 
 pub fn parseIntoItemTable(io: std.Io, allocator: std.mem.Allocator, input: []const u8) !ItemTable {
     var err: toml_external.ErrorInfo = .{};
@@ -22,4 +30,12 @@ pub fn parseIntoItemTable(io: std.Io, allocator: std.mem.Allocator, input: []con
     };
 
     return item_table;
+}
+
+fn lessThan(_: void, a: Item, b: Item) bool {
+    return std.mem.order(u8, a.uiid, b.uiid) == .lt;
+}
+
+pub fn sortItemTable(item_table: ItemTable) void {
+    std.mem.sort(Item, item_table.items, {}, lessThan);
 }
