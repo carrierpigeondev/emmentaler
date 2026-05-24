@@ -59,3 +59,48 @@ pub fn getDirectoryContents(io: std.Io, allocator: std.mem.Allocator, dir_parts:
 
     return try directory_content_buffer.toOwnedSlice(allocator);
 }
+
+pub fn compileTasksInDirectory(io: std.Io, allocator: std.mem.Allocator, dir_parts: []const []const u8) !void {
+    const dir_path = try std.fs.path.join(allocator, dir_parts);
+    defer allocator.free(dir_path);
+
+    var dir = try std.Io.Dir.cwd().openDir(io, dir_path, .{ .iterate = true });
+    defer dir.close(io);
+
+    var walker = try dir.walk(allocator);
+    defer walker.deinit();
+
+    while (try walker.next(io)) |entry| {
+        if (entry.kind != .file) {
+            continue;
+        }
+
+        const idx = std.mem.lastIndexOfScalar(u8, entry.basename, '.') orelse entry.basename.len;
+
+        const extension = if (idx == entry.basename.len) "" else entry.basename[idx + 1 ..];
+        if (!std.mem.eql(u8, extension, "zig")) {
+            continue;
+        }
+
+        const task_name = entry.basename[0..idx];
+        const task_file_parts = &[_][]const u8{ task_name, ".so" };
+        const task_file = try std.mem.concat(allocator, u8, task_file_parts);
+        defer allocator.free(task_file);
+
+        const output_path_parts = &[_][]const u8{ dir_path, task_file };
+        const output_path = try std.fs.path.join(allocator, output_path_parts);
+        defer allocator.free(output_path);
+
+        const femitbin_arg_parts = &[_][]const u8{ "-femit-bin=", output_path };
+        const femitbin_arg = try std.mem.concat(allocator, u8, femitbin_arg_parts);
+        defer allocator.free(femitbin_arg);
+
+        const argv = &[_][]const u8{ "zig", "build-lib", entry.path, "-dynamic", femitbin_arg };
+
+        const res = try std.process.run(allocator, io, .{ .argv = argv });
+        defer allocator.free(res.stdout);
+        defer allocator.free(res.stderr);
+
+        std.debug.print("{s}\n\n {s}\n\n {any}\n\n", .{ res.stdout, res.stdout, res.term });
+    }
+}
