@@ -25,23 +25,20 @@ pub fn main(init: std.process.Init) !void {
 
         if (item.tasks) |tasks| {
             for (tasks) |task| {
-                std.debug.print("  task: {s}\n", .{task.path});
-                try taskrun.callTaskRun(task.path);
+                std.debug.print("  task: {s} :: ", .{task.path});
+
+                const task_file_parts = &[_][]const u8{ task.path, ".so" };
+                const task_file = try std.mem.concat(gpa, u8, task_file_parts);
+                defer gpa.free(task_file);
+
+                const path_parts = &[_][]const u8{ "gamedata", "tasks", task_file };
+                const path = try std.fs.path.join(gpa, path_parts);
+                defer gpa.free(path);
+
+                std.debug.print("{s}\n", .{path});
+
+                try taskrun.callTaskRun(io, gpa, path);
             }
         }
     }
-
-    // rl.initWindow(800, 450, "emmentaler");
-    // defer rl.closeWindow();
-
-    // while (!rl.windowShouldClose()) {
-    //     rl.beginDrawing();
-    //     defer rl.endDrawing();
-
-    //     rl.clearBackground(.black);
-
-    //     for (item_table.items) |item| {
-    //         rl.drawRectangle(item.position.x, item.position.y, 5, 5, .red);
-    //     }
-    // }
 }

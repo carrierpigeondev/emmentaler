@@ -95,12 +95,16 @@ pub fn compileTasksInDirectory(io: std.Io, allocator: std.mem.Allocator, dir_par
         const femitbin_arg = try std.mem.concat(allocator, u8, femitbin_arg_parts);
         defer allocator.free(femitbin_arg);
 
-        const argv = &[_][]const u8{ "zig", "build-lib", entry.path, "-dynamic", femitbin_arg };
+        const source_path_parts = &[_][]const u8{ dir_path, entry.path };
+        const source_path = try std.fs.path.join(allocator, source_path_parts);
+        defer allocator.free(source_path);
 
+        const argv = &[_][]const u8{ "zig", "build-lib", source_path, "-dynamic", femitbin_arg };
+        
         const res = try std.process.run(allocator, io, .{ .argv = argv });
         defer allocator.free(res.stdout);
         defer allocator.free(res.stderr);
 
-        std.debug.print("{s}\n\n {s}\n\n {any}\n\n", .{ res.stdout, res.stdout, res.term });
+        std.debug.print("{s}\n\n {s}\n\n {any}\n\n", .{ res.stdout, res.stderr, res.term });
     }
 }

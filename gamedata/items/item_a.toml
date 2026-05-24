@@ -1,4 +1,4 @@
 [[items]]
 uiid="item_test_a"
 [[items.tasks]]
-path="gamedata/tasks/TaskA.so"
+path="TaskA"
